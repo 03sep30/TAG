@@ -10,6 +10,7 @@ public class TestPlayerController : MonoBehaviourPunCallbacks
     public bool isPicked = false;
 
     public TextMeshPro statusText;
+    public Transform textPos;
     void Update()
     {
         if (!PV.IsMine && PhotonNetwork.IsConnected)

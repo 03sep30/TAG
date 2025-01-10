@@ -18,7 +18,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
     private void Start()
     {
-        PhotonNetwork.GameVersion = this.gameVersion;
+        PhotonNetwork.GameVersion = gameVersion;
         PhotonNetwork.ConnectUsingSettings();
     }
     void Connect() => PhotonNetwork.ConnectUsingSettings();

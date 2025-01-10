@@ -42,6 +42,7 @@ MonoBehaviour:
   - TakeDamage
   - OnPlayerDeath
   - AddComponentRPC
+  - UpdateHPBar
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

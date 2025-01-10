@@ -2,36 +2,46 @@ using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EvaderController : MonoBehaviourPun
 {
-    public int maxHP = 2;
-    private int currentHP;
-    public PhotonView PV;
+    public float maxHP = 1;
+    private float currentHP;
+    private Image hpBar;
 
     void Start()
     {
-        PV = photonView;
         currentHP = maxHP;
+        hpBar = transform.Find("Canvas/HPFront").GetComponent<Image>();
     }
 
     [PunRPC]
-    public void TakeDamage(int damage)
+    public void TakeDamage(float damage)
     {
-        if (!PV.IsMine) return;
+        if (!photonView.IsMine) return;
+
         currentHP -= damage;
+        photonView.RPC("UpdateHPBar", RpcTarget.AllBuffered, currentHP);
 
         if (currentHP <= 0)
         {
             Die();
         }
     }
-    
+
+    [PunRPC]
+    public void UpdateHPBar(float health)
+    {
+        currentHP = health;
+        hpBar.fillAmount = health / maxHP;
+    }
+
     void Die()
     {
-        if (PV.IsMine)
+        if (photonView.IsMine)
         {
-            PV.RPC("OnPlayerDeath", RpcTarget.AllBuffered);
+            photonView.RPC("OnPlayerDeath", RpcTarget.AllBuffered);
         }
         
     }
@@ -39,13 +49,11 @@ public class EvaderController : MonoBehaviourPun
     [PunRPC]
     public void OnPlayerDeath()
     {
-        Debug.Log("OnPlayerDeath RPC called");
         var testController = GetComponent<TestPlayerController>();
         if (testController != null)
         {
             testController.statusText.text = "Die";
-            gameObject.GetComponent<MeshRenderer>().material.color = Color.red;
-            Debug.Log("Status text updated to 'Die'");
+            gameObject.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
         else
         {
