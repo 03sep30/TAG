@@ -8,12 +8,37 @@ public class EvaderController : MonoBehaviourPun
 {
     public float maxHP = 1;
     private float currentHP;
+    public float warningRange = 4f;
+
     private Image hpBar;
+    private Transform textPos;
+    private GameObject warningObj;
+    private MeshRenderer warningRenderer;
 
     void Start()
     {
         currentHP = maxHP;
-        hpBar = transform.Find("Canvas/HPFront").GetComponent<Image>();
+        hpBar = transform.Find("EvaderPos/Canvas/HPFront").GetComponent<Image>();
+        textPos = transform.Find("EvaderPos");
+        textPos.gameObject.SetActive(true);
+        
+        gameObject.GetComponent<TestPlayerController>().statusText.text = $"{photonView.ViewID} : Evader";
+        gameObject.GetComponent<MeshRenderer>().material.color = Color.green;
+
+        if (textPos != null)
+        {
+            warningObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            warningObj.name = "warningObj";
+            warningObj.transform.SetParent(textPos, false);
+            warningObj.transform.localPosition = new Vector3(0f, -2f, -0.5f);
+            warningObj.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+            warningRenderer = warningObj.GetComponent<MeshRenderer>();
+        }
+    }
+
+    void Update()
+    {
+        UpdateWarningObj();
     }
 
     [PunRPC]
@@ -52,12 +77,55 @@ public class EvaderController : MonoBehaviourPun
         var testController = GetComponent<TestPlayerController>();
         if (testController != null)
         {
-            testController.statusText.text = "Die";
-            gameObject.GetComponent<MeshRenderer>().material.color = Color.gray;
+            StartCoroutine(ChangeChaser());
         }
         else
         {
             Debug.LogError("TestPlayerController not found on this object");
         }
+    }
+
+    void UpdateWarningObj()
+    {
+        float nearestDistance = float.MaxValue;
+
+        ChaserController[] chasers = FindObjectsOfType<ChaserController>();
+        foreach (var chaser in chasers)
+        {
+            float distance = Vector3.Distance(transform.position, chaser.transform.position);
+            if (distance < nearestDistance)
+            {
+                nearestDistance = distance;
+            }
+        }
+
+        if (chasers.Length > 0)
+        {
+            if (nearestDistance <= 2f)
+            {
+                warningRenderer.material.color = Color.red;
+            }
+            else if (nearestDistance <= 3f)
+            {
+                warningRenderer.material.color = Color.yellow;
+            }
+            else if (nearestDistance <= 4f)
+            {
+                warningRenderer.material.color = Color.blue;
+            }
+            else
+            {
+                warningRenderer.material.color = Color.green;
+            }
+        }
+    }
+
+    IEnumerator ChangeChaser()
+    {
+        yield return new WaitForSeconds(3f);
+
+        gameObject.AddComponent<ChaserController>();
+        textPos.gameObject.SetActive(false);
+        Destroy(this);
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using TMPro;
+using Unity.VisualScripting;
+using UnityEngine.UI;
 
 public class ChaserController : MonoBehaviourPun
 {
@@ -17,13 +19,22 @@ public class ChaserController : MonoBehaviourPun
 
     void Start()
     {
-        textPos = GetComponent<TestPlayerController>().textPos.transform;
+        textPos = transform.Find("ChaserPos");
+        textPos.gameObject.SetActive(true);
+        gameObject.GetComponent<TestPlayerController>().statusText.text = $"{photonView.ViewID} : Chaser";
+        gameObject.GetComponent<MeshRenderer>().material.color = Color.black;
 
         if (textPos != null)
         {
             swingTimeText = new GameObject("SwingTimeText").AddComponent<TextMeshPro>();
             swingTimeText.transform.SetParent(textPos, false);
             swingTimeText.transform.localPosition = Vector3.zero;
+            swingTimeText.transform.localScale = Vector3.one;
+
+            swingTimeText.GetComponent<RectTransform>().sizeDelta = new Vector2(3f, 1f);
+            swingTimeText.fontSize = 7f;
+            swingTimeText.alignment = TextAlignmentOptions.Center;
+            swingTimeText.color = Color.white;
         }
     }
 
@@ -31,7 +42,7 @@ public class ChaserController : MonoBehaviourPun
     {
         if (!photonView.IsMine) return;
 
-        if (Input.GetKeyDown(KeyCode.A) && !isAttacking)
+        if (Input.GetMouseButtonDown(1) && !isAttacking)
         {
             StartCoroutine(PerformAttack());
             Debug.Log("Attack!");

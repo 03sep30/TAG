@@ -9,29 +9,21 @@ public class TestPlayerController : MonoBehaviourPunCallbacks
     public PhotonView PV;
     public bool isPicked = false;
 
+    public float moveSpeed = 5.0f;
+    public float turnSpeed = 2.0f;
+
     public TextMeshPro statusText;
-    public Transform textPos;
     void Update()
     {
         if (!PV.IsMine && PhotonNetwork.IsConnected)
             return;
 
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            this.transform.position = new Vector3(-1, 0, 0);
-        }
-        if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            this.transform.position = new Vector3(1, 0, 0);
-        }
-        if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            this.transform.position = new Vector3(0, 1, 0);
-        }
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            this.transform.position = new Vector3(0, -1, 0);
-        }
+        float moveX = Input.GetAxisRaw("Horizontal") * moveSpeed * Time.deltaTime;
+        float moveZ = Input.GetAxisRaw("Vertical") * moveSpeed * Time.deltaTime;
+
+        Vector3 move = transform.right * moveX + transform.forward * moveZ;
+        transform.Translate(move, Space.World);
+         
         if (!isPicked)
         {
             if (Input.GetKeyDown(KeyCode.C))
@@ -55,15 +47,12 @@ public class TestPlayerController : MonoBehaviourPunCallbacks
             if (componentName == "ChaserController")
             {
                 gameObject.AddComponent<ChaserController>();
-                statusText.text = $"{PV.ViewID} : Chaser";
             }
             else if (componentName == "EvaderController")
             {
                 gameObject.AddComponent<EvaderController>();
-                statusText.text = $"{PV.ViewID} : Evader";
             }
 
-            gameObject.GetComponent<MeshRenderer>().material.color = (componentName == "ChaserController") ? Color.black : Color.green;
             isPicked = true;
         }
     }
