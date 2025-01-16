@@ -515,13 +515,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 134248816229856745}
+  distance: 3
   offsetX: 0
   offsetY: 2.5
   offsetZ: -4
-  angleX: 19
-  angleY: 0
-  angleZ: 0
+  xRotation: 0
+  yRotation: 0
   cameraSpeed: 10
+  rotationSpeed: 5
 --- !u!1 &7273448807671488821
 GameObject:
   m_ObjectHideFlags: 0

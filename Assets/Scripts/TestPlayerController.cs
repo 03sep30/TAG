@@ -6,16 +6,22 @@ using Photon.Pun;
 
 public class TestPlayerController : MonoBehaviourPunCallbacks
 {
-    public PhotonView PV;
     public bool isPicked = false;
 
     public float moveSpeed = 5.0f;
-    public float turnSpeed = 2.0f;
 
     public TextMeshPro statusText;
+
+    private void Start()
+    {
+        DontDestroyOnLoad(gameObject);
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
     void Update()
     {
-        if (!PV.IsMine && PhotonNetwork.IsConnected)
+        if (!photonView.IsMine && PhotonNetwork.IsConnected)
             return;
 
         float moveX = Input.GetAxisRaw("Horizontal") * moveSpeed * Time.deltaTime;
@@ -23,16 +29,25 @@ public class TestPlayerController : MonoBehaviourPunCallbacks
 
         Vector3 move = transform.right * moveX + transform.forward * moveZ;
         transform.Translate(move, Space.World);
-         
+
         if (!isPicked)
         {
             if (Input.GetKeyDown(KeyCode.C))
             {
                 AddComponentRPCToAll("ChaserController");
+                PlayerPrefs.SetString("PlayerRole", "Chaser");
             }
             if (Input.GetKeyDown(KeyCode.E))
             {
                 AddComponentRPCToAll("EvaderController");
+                PlayerPrefs.SetString("PlayerRole", "Evader");
+            }
+        }
+        if (PhotonNetwork.IsMasterClient)
+        {
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                PhotonNetwork.LoadLevel("TestMapPlan");
             }
         }
     }
@@ -42,7 +57,7 @@ public class TestPlayerController : MonoBehaviourPunCallbacks
     {
         if (!isPicked)
         {
-            statusText.text = $"{PV.ViewID}{componentName} try";
+            statusText.text = $"{photonView.ViewID}{componentName} try";
 
             if (componentName == "ChaserController")
             {
@@ -59,9 +74,9 @@ public class TestPlayerController : MonoBehaviourPunCallbacks
 
     void AddComponentRPCToAll(string componentName)
     {
-        if (PV.IsMine)
+        if (photonView.IsMine)
         {
-            PV.RPC("AddComponentRPC", RpcTarget.AllBuffered, componentName);
+            photonView.RPC("AddComponentRPC", RpcTarget.AllBuffered, componentName);
         }
     }
 }

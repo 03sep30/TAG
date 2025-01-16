@@ -9,7 +9,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 {
     public Text StatusText;
     public InputField NickNameInput;
-    public GameObject cube;
+    public GameObject playerPrefab;
     public string gameVersion = "1.0";
 
     private void Awake()
@@ -30,7 +30,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        PhotonNetwork.Instantiate("Player3", cube.transform.position, Quaternion.identity);
+        PhotonNetwork.Instantiate("Player", playerPrefab.transform.position, Quaternion.identity);
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message)

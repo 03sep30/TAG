@@ -8,7 +8,7 @@ public class EvaderController : MonoBehaviourPun
 {
     public float maxHP = 1;
     private float currentHP;
-    public float warningRange = 4f;
+    public float warningRange = 50f;
 
     private Image hpBar;
     private Transform textPos;
@@ -17,12 +17,16 @@ public class EvaderController : MonoBehaviourPun
 
     void Start()
     {
+        var player = GetComponent<TestPlayerController>();
+
+        player.moveSpeed = 7.5f;
+
         currentHP = maxHP;
         hpBar = transform.Find("EvaderPos/Canvas/HPFront").GetComponent<Image>();
         textPos = transform.Find("EvaderPos");
         textPos.gameObject.SetActive(true);
-        
-        gameObject.GetComponent<TestPlayerController>().statusText.text = $"{photonView.ViewID} : Evader";
+
+        player.statusText.text = $"{photonView.ViewID} : Evader";
         gameObject.GetComponent<MeshRenderer>().material.color = Color.green;
 
         if (textPos != null)
@@ -101,15 +105,15 @@ public class EvaderController : MonoBehaviourPun
 
         if (chasers.Length > 0)
         {
-            if (nearestDistance <= 2f)
+            if (nearestDistance <= 10f)
             {
                 warningRenderer.material.color = Color.red;
             }
-            else if (nearestDistance <= 3f)
+            else if (nearestDistance <= 30f)
             {
                 warningRenderer.material.color = Color.yellow;
             }
-            else if (nearestDistance <= 4f)
+            else if (nearestDistance <= 50f)
             {
                 warningRenderer.material.color = Color.blue;
             }

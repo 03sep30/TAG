@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class ChaserController : MonoBehaviourPun
 {
     public float attackDamage = 0.5f;
-    public float attackRange = 1f;
+    public float attackRange = 1.5f;
     public float swingTime = 2.5f;
     public float stunTime = 3f;
     public bool isAttacking = false;
@@ -19,9 +19,13 @@ public class ChaserController : MonoBehaviourPun
 
     void Start()
     {
+        var player = GetComponent<TestPlayerController>();
+
+        player.moveSpeed = 10f;
+
         textPos = transform.Find("ChaserPos");
         textPos.gameObject.SetActive(true);
-        gameObject.GetComponent<TestPlayerController>().statusText.text = $"{photonView.ViewID} : Chaser";
+        player.statusText.text = $"{photonView.ViewID} : Chaser";
         gameObject.GetComponent<MeshRenderer>().material.color = Color.black;
 
         if (textPos != null)
@@ -90,7 +94,7 @@ public class ChaserController : MonoBehaviourPun
 
     void OnHitDetected(Collider hit)
     {
-        if (hit.TryGetComponent(out PhotonView targetPV) && !targetPV.IsMine)
+        if (hit.TryGetComponent(out PhotonView targetPV) && hit.GetComponent<EvaderController>() != null && !targetPV.IsMine)
         {
             targetPV.RPC("TakeDamage", RpcTarget.Others, attackDamage);
 
